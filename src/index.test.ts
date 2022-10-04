@@ -1,6 +1,6 @@
 import {describe, expect, test} from '@jest/globals';
 import client from './index'
-import { daySchedule } from './types';
+import { daySchedule, generalInformation } from './types';
 
 const token = "TOKEN HERE"
 
@@ -14,4 +14,9 @@ test('expect schoolMessage to return something', async () => {
 test('expect viewSchedule to return something', async () => {
     const schedule: daySchedule = await api.viewSchedule('2022-10-8')
     expect(schedule.periodDescription).toBeDefined()
+})
+
+test('expect generalInformation() to return something', async () => {
+    const all: generalInformation = await api.generalInformation()
+    expect(all.periodId).toBe(1)
 })

@@ -1,5 +1,5 @@
 import fetch, { HeadersInit, Response } from 'node-fetch'
-import { EsAPIError, daySchedule } from './types'
+import { EsAPIError, daySchedule, generalInformation } from './types'
 
 /**
  * Class which represents the enriching students api.
@@ -71,5 +71,18 @@ export default class EsAPI {
     const data = await res.json()
     const currentDay: daySchedule = data[0]
     return currentDay
+  }
+
+  /**
+   * Returns general information about the school's setup for enriching students.
+   */
+  public async generalInformation() {
+    const allURL = this.baseUrl + "period/all"
+
+    const res = await fetch(allURL, { headers: this.headers})
+    this.checkStatus(res)
+    const data = await res.json()
+    const info: generalInformation = data[0]
+    return info
   }
 }
