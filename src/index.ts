@@ -8,8 +8,8 @@ import { EsAPIError, daySchedule, generalInformation, validateCredentials, EsAPI
 export default class EsAPI {
   /* variables */
   token: string;
-  baseUrl: string;
-  headers: HeadersInit;
+  private baseUrl: string;
+  private headers: HeadersInit;
 
   /**
    * Determines if the program is ready to precess requests
