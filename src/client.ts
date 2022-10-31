@@ -10,6 +10,7 @@ export class EsAPI {
   token: string;
   private baseUrl: string;
   private headers: HeadersInit;
+  userAgent: string;
 
   /**
    * Determines if the program is ready to precess requests
@@ -20,12 +21,15 @@ export class EsAPI {
   constructor(options: EsAPIOptions) {
     this.ready = false;
     this.status = new EventEmitter();
+    this.userAgent = "User-Agent: Mozilla/5.0 (X11; CrOS x86_64 15054.98.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36"
 
     let headers = {
       Host: "student.enrichingstudents.com",
       Connection: "keep-alive",
       Accept: "application/json",
       ESAuthToken: this.token,
+      "User-Agent": this.userAgent,
+      "Content-Type": "application/json;charset=UTF-8",
     }
 
     if (options.token) {
@@ -57,7 +61,7 @@ export class EsAPI {
   }
   private checkStatus(res: Response, txt: string) {
     if (res.status !== 200) {
-      throw new EsAPIError('Error while contacting API: ' + res.statusText + ' Additional: ' + txt)
+      throw new EsAPIError('Error while contacting API: ' + res.status + ' ' + res.statusText + ' Additional: ' + txt)
     }
   }
 
@@ -107,6 +111,7 @@ export class EsAPI {
     const payload = {
       'startDate': date,
     }
+
     const res = await fetch(viewScheduleURL, { headers: this.headers, body: JSON.stringify(payload), method: 'post' })
     this.checkStatus(res, 'viewSchedule')
     const data = await res.json()
@@ -115,9 +120,10 @@ export class EsAPI {
   }
 
   /**
-   * Returns general information about the school's setup for enriching students.
+   * General information endpoint
+   * @returns generalInformation
    */
-  public async generalInformation() {
+  public async generalInformation(): Promise<generalInformation> {
     if(!this.ready) throw new EsAPIError('Client not ready.');
 
     const allURL = this.baseUrl + "period/all"
@@ -156,9 +162,11 @@ export class EsAPI {
   }
 
   /**
-   * Takes credentials and gets a token
+   * Checks if certain credentials are valid.
+   * @param email Email for enriching students
+   * @param pass Password for enriching students
+   * @returns validateCredentials
    */
-
   private async validateCredentials(email: string, pass: string): Promise<validateCredentials> {
     const validateUrl = 'https://app.enrichingstudents.com/LoginApi/Validate'
 
@@ -186,6 +194,12 @@ export class EsAPI {
     return json
   }
 
+  /**
+   * Not exactly sure what this does, but it's required to login.
+   * @param token1 string
+   * @param token2 string
+   * @returns Promise<string>
+   */
   private async viaTokens(token1: string, token2: string): Promise<string> {
     const reqURL = "https://student.enrichingstudents.com/v1.0/login/viatokens"
 
