@@ -13,7 +13,7 @@ You can view the docs [here](https://dragongoose.github.io/es-api/index.html)
 
 ## Installation
 
-Use [NPM](https://npmjs.com) to install holodex-api.
+Use [NPM](https://npmjs.com) to install es-api.
 
 ```bash
 npm i es-api
