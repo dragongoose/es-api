@@ -1,7 +1,7 @@
 /**
  * Interface for the API response from function viewSchedule
  */
- export interface daySchedule {
+ export interface course {
     attendanceComment: null
     attendanceTypeId: number
     attendanceTypeDescription: null

@@ -1,6 +1,6 @@
 import fetch, { HeadersInit, Response } from 'node-fetch'
 import { EventEmitter } from 'stream';
-import { EsAPIError, daySchedule, generalInformation, validateCredentials, EsAPIOptions, scheduledData } from './types'
+import { EsAPIError, course, generalInformation, validateCredentials, EsAPIOptions, scheduledData, forStudentSchedulingData } from './types'
 
 /**
  * Class which represents the enriching students api.
@@ -104,7 +104,7 @@ export class EsAPI {
   /**
    * Function that fetches a class scheduled on one day
    */
-  public async viewSchedule(date: string): Promise<daySchedule> {
+  public async viewSchedule(date: string): Promise<course> {
     if(!this.ready) throw new EsAPIError('Client not ready.');
 
     const viewScheduleURL = this.baseUrl + 'appointment/viewschedule'
@@ -115,7 +115,7 @@ export class EsAPI {
     const res = await fetch(viewScheduleURL, { headers: this.headers, body: JSON.stringify(payload), method: 'post' })
     this.checkStatus(res, 'viewSchedule')
     const data = await res.json()
-    const currentDay: daySchedule = data[0]
+    const currentDay: course = data[0]
     return currentDay
   }
 
@@ -216,4 +216,19 @@ export class EsAPI {
     const json = await res.json()
     return json.authToken
   }
+
+  public async forStudentScheduling(periodId: number, startDate: string) {
+    const reqURL = this.baseUrl + 'course/forstudentscheduling'
+
+    const payload = {
+      periodId,
+      startDate
+    }
+
+    const res = await fetch(reqURL, { headers: this.headers, body: JSON.stringify(payload), method: 'POST'})
+    this.checkStatus(res, 'forStudentScheduling')
+    const json: forStudentSchedulingData = await res.json()
+    return json
+  }
 }
+
