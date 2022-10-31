@@ -82,7 +82,7 @@ export default class EsAPI {
    * @returns string
    */
   public async schoolMessage(): Promise<string> {
-    if(!this.ready) return;
+    if(!this.ready) throw new EsAPIError('Client not ready.');
 
     const schoolMessageURL = this.baseUrl + 'schoolmessage'
 
@@ -101,6 +101,8 @@ export default class EsAPI {
    * Function that fetches a class scheduled on one day
    */
   public async viewSchedule(date: string): Promise<daySchedule> {
+    if(!this.ready) throw new EsAPIError('Client not ready.');
+
     const viewScheduleURL = this.baseUrl + 'appointment/viewschedule'
     const payload = {
       'startDate': date,
@@ -116,6 +118,8 @@ export default class EsAPI {
    * Returns general information about the school's setup for enriching students.
    */
   public async generalInformation() {
+    if(!this.ready) throw new EsAPIError('Client not ready.');
+
     const allURL = this.baseUrl + "period/all"
 
     const res = await fetch(allURL, { headers: this.headers })
@@ -126,6 +130,8 @@ export default class EsAPI {
   }
 
   public async scheduleCourse(courseId: number, date: string, comment: string = '') {
+    if(!this.ready) throw new EsAPIError('Client not ready.');
+
     const scheduleCourseUrl = this.baseUrl + "/appointment/save"
 
     let payload = {
@@ -153,7 +159,7 @@ export default class EsAPI {
    * Takes credentials and gets a token
    */
 
-  public async validateCredentials(email: string, pass: string): Promise<validateCredentials> {
+  private async validateCredentials(email: string, pass: string): Promise<validateCredentials> {
     const validateUrl = 'https://app.enrichingstudents.com/LoginApi/Validate'
 
     const payload = {
@@ -180,7 +186,7 @@ export default class EsAPI {
     return json
   }
 
-  public async viaTokens(token1: string, token2: string): Promise<string> {
+  private async viaTokens(token1: string, token2: string): Promise<string> {
     const reqURL = "https://student.enrichingstudents.com/v1.0/login/viatokens"
 
     const headers = {
