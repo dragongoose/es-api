@@ -1,6 +1,6 @@
 import fetch, { HeadersInit, Response } from 'node-fetch'
 import { EventEmitter } from 'stream';
-import { EsAPIError, daySchedule, generalInformation, validateCredentials, EsAPIOptions } from './types'
+import { EsAPIError, daySchedule, generalInformation, validateCredentials, EsAPIOptions, scheduledData } from './types'
 
 /**
  * Class which represents the enriching students api.
@@ -135,7 +135,7 @@ export class EsAPI {
     return info
   }
 
-  public async scheduleCourse(courseId: number, date: string, comment: string = '') {
+  public async scheduleCourse(courseId: number, date: string, comment: string): Promise<scheduledData> {
     if(!this.ready) throw new EsAPIError('Client not ready.');
 
     const scheduleCourseUrl = this.baseUrl + "/appointment/save"
@@ -143,7 +143,7 @@ export class EsAPI {
     let payload = {
       "courseID": courseId,
       "scheduleDate": date,
-      'scheduleComment': comment
+      'scheduleComment': comment || ''
     }
 
     let options = {
@@ -152,7 +152,7 @@ export class EsAPI {
       headers: this.headers,
     }
     const res = await fetch(scheduleCourseUrl, options)
-    const data = await res.json()
+    const data: scheduledData = await res.json()
 
     if (data.appointmentEditorResponse !== 1) {
       throw new EsAPIError(`Error while scheduling appointment (${data.appointmentEditorResponse}): ${data.errorMessages.join(', ')}`)
