@@ -1,7 +1,7 @@
-import {course} from './'
+import {forStudentSchedulingCourse} from './'
 
 export interface forStudentSchedulingData {
-    courses: course[],
+    courses: forStudentSchedulingCourse[],
     courseListStatusID: number,
     wasFoundInCache: boolean
 }
