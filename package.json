@@ -18,5 +18,23 @@
     "prepare": "npm run compile",
     "pretest": "npm run compile",
     "posttest": "npm run lint"
-  }
+  },
+  "name": "es-api",
+  "description": "es-api is a wrapper for [Enriching Students](https://www.enrichingstudents.com/) API, written in TypeScript.",
+  "version": "0.0.1",
+  "main": "dist/src/index.js",
+  "types": "dist/src/index.d.ts",
+  "declarations": true,
+  "files": ["dist"],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dragongoose/es-api.git"
+  },
+  "keywords": [],
+  "author": "dragongoose",
+  "license": "GPL v3",
+  "bugs": {
+    "url": "https://github.com/dragongoose/es-api/issues"
+  },
+  "homepage": "https://github.com/dragongoose/es-api#readme"
 }
