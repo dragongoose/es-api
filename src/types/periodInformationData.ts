@@ -1,0 +1,16 @@
+export interface periodInformationData {
+    isActive: boolean,
+    periodDescription: string,
+    periodEndTime: Date,
+    periodEndTimeDisplay: string,
+    periodId: number,
+    periodStartTime: Date,
+    periodStartTimeDisplay: string,
+    prebookMonday: boolean,
+    prebookTuesday: boolean,
+    prebookWednesday: boolean,
+    prebookThursday: boolean,
+    prebookFriday: boolean,
+    schoolUsesPrebooking: boolean,
+    schoolId: number,
+}

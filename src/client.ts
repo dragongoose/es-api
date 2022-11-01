@@ -1,6 +1,6 @@
 import fetch, { HeadersInit, Response } from 'node-fetch'
 import { EventEmitter } from 'stream';
-import { EsAPIError, course, generalInformation, validateCredentials, EsAPIOptions, scheduledData, forStudentSchedulingData } from './types'
+import { EsAPIError, course, generalInformation, validateCredentials, EsAPIOptions, scheduledData, forStudentSchedulingData, periodInformationData, selfSchedulingInfo } from './types'
 
 /**
  * Class which represents the enriching students api.
@@ -217,7 +217,13 @@ export class EsAPI {
     return json.authToken
   }
 
-  public async forStudentScheduling(periodId: number, startDate: string) {
+  /**
+   * get all courses that the student can schedule
+   * @param periodId 
+   * @param startDate 
+   * @returns forStudentSchedulingData
+   */
+  public async forStudentScheduling(periodId: number, startDate: string): Promise<forStudentSchedulingData> {
     const reqURL = this.baseUrl + 'course/forstudentscheduling'
 
     const payload = {
@@ -228,6 +234,28 @@ export class EsAPI {
     const res = await fetch(reqURL, { headers: this.headers, body: JSON.stringify(payload), method: 'POST'})
     this.checkStatus(res, 'forStudentScheduling')
     const json: forStudentSchedulingData = await res.json()
+    return json
+  }
+
+  /**
+   * Get information about each period you can schedule
+   * @returns periodInformationData
+   */
+  public async periodInformation(): Promise<periodInformationData> {
+    const reqUrl = this.baseUrl + "period/all"
+
+    const res = await fetch(reqUrl, { headers: this.headers });
+    this.checkStatus(res, 'periodInformation')
+    const json: periodInformationData = await res.json()
+    return json
+  }
+
+  public async selfSchedulingInfo(): Promise<selfSchedulingInfo> {
+    const reqUrl = this.baseUrl + "student/setupforscheduling"
+
+    const res = await fetch(reqUrl, { headers: this.headers })
+    this.checkStatus(res, 'selfSchedulingInfo')
+    const json: selfSchedulingInfo = await res.json()
     return json
   }
 }
