@@ -21,7 +21,7 @@
   },
   "name": "es-api",
   "description": "es-api is a wrapper for [Enriching Students](https://www.enrichingstudents.com/) API, written in TypeScript.",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
   "declarations": true,

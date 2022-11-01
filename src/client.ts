@@ -53,6 +53,9 @@ export class EsAPI {
         this.ready = true;
         this.status.emit('ready', this.ready)
       })
+    } else {
+      // missing either token or password
+      throw new Error("You didn't provide credentials/token!")
     }
 
 
