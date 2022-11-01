@@ -12,6 +12,7 @@
   },
   "scripts": {
     "lint": "gts lint",
+    "doc": "npx typedoc ./src/index.ts",
     "clean": "gts clean",
     "compile": "tsc",
     "fix": "gts fix",
@@ -21,7 +22,7 @@
   },
   "name": "es-api",
   "description": "es-api is a wrapper for [Enriching Students](https://www.enrichingstudents.com/) API, written in TypeScript.",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
   "declarations": true,
