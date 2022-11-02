@@ -194,6 +194,7 @@ export class EsAPI {
     this.checkStatus(res, 'validateCredentials')
     const json: validateCredentials = await res.json()
     json.token = await this.viaTokens(json.ViewModel.Token1, json.ViewModel.Token2)
+      .catch((err) => { throw new EsAPIError("Invalid credentials!") })
     return json
   }
 
@@ -260,6 +261,18 @@ export class EsAPI {
     this.checkStatus(res, 'selfSchedulingInfo')
     const json: selfSchedulingInfo = await res.json()
     return json
+  }
+
+  public async changePassword(password: string): Promise<boolean> {
+    const reqURL = this.baseUrl + 'student/changePassword'
+
+    const payload = {
+      password
+    }
+
+    const res = await fetch(reqURL, { headers: this.headers, body: JSON.stringify(payload), method: 'POST'})
+    this.checkStatus(res, 'changePassword');
+    return true;
   }
 }
 
