@@ -26,7 +26,7 @@ Also view [examples](https://github.com/dragongoose/es-api/tree/master/src/examp
 ```typescript
 import {EsAPI} from './client'
 
-const api = new EsAPI({email: 'EMAIL', password: 'PASS'})
+const api = new EsAPI()
 
 api.status.on('ready', () => {
     api.schoolMessage()
@@ -34,6 +34,8 @@ api.status.on('ready', () => {
             console.log(message);
         })
 })
+
+api.login({email: 'EMAIL', password: 'PASS'})
 
 ```
 
@@ -41,7 +43,7 @@ You can also use your token!
 ```typescript
 import {EsAPI} from './client'
 
-const api = new EsAPI({token: 'token'})
+const api = new EsAPI()
 
 api.status.on('ready', () => {
     api.schoolMessage()
@@ -49,6 +51,8 @@ api.status.on('ready', () => {
             console.log(message);
         })
 })
+
+api.login({token: 'token'})
 
 ```
 

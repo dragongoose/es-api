@@ -18,50 +18,59 @@ export class EsAPI {
   ready: boolean;
   status: EventEmitter;
 
-  constructor(options: EsAPIOptions) {
+  constructor() {
     this.ready = false;
     this.status = new EventEmitter();
     this.userAgent = "User-Agent: Mozilla/5.0 (X11; CrOS x86_64 15054.98.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36"
-
-    let headers = {
-      Host: "student.enrichingstudents.com",
-      Connection: "keep-alive",
-      Accept: "application/json",
-      ESAuthToken: this.token,
-      "User-Agent": this.userAgent,
-      "Content-Type": "application/json;charset=UTF-8",
-    }
-
-    if (options.token) {
-      this.token = options.token
-      headers.ESAuthToken = options.token
-      this.headers = headers
-      this.testAuthorization()
-
-      this.ready = true;
-      this.status.emit('ready', this.ready)
-    } else if (options.email && options.password) {
-      const accData = this.validateCredentials(options.email, options.password)
-  
-      accData.then((data) => {
-        if (!data.IsAuthorized) throw new EsAPIError("Invalid credentials!")
-        this.token = data.token
-        headers.ESAuthToken = data.token
-        this.headers = headers
-
-        this.testAuthorization()
-        this.ready = true;
-        this.status.emit('ready', this.ready)
-      })
-    } else {
-      // missing either token or password
-      throw new Error("You didn't provide credentials/token!")
-    }
-
-
-
     this.baseUrl = "https://student.enrichingstudents.com/v1.0/"
   }
+
+  public async login(options: EsAPIOptions) {
+    return new Promise((resolve, reject) => {
+      let headers = {
+        Host: "student.enrichingstudents.com",
+        Connection: "keep-alive",
+        Accept: "application/json",
+        ESAuthToken: this.token,
+        "User-Agent": this.userAgent,
+        "Content-Type": "application/json;charset=UTF-8",
+      }
+
+      if (options.token) {
+        this.token = options.token
+        headers.ESAuthToken = options.token
+        this.headers = headers
+        this.testAuthorization()
+          .catch(() => { reject('Invalid token') })
+
+        this.ready = true;
+        this.status.emit('ready', this.ready)
+        resolve(true)
+      } else if (options.email && options.password) {
+        const accData = this.validateCredentials(options.email, options.password)
+
+        accData.then((data) => {
+          this.testAuthorization()
+            .catch(() => { reject('Invalid credentials') })
+
+          this.token = data.token
+          headers.ESAuthToken = data.token
+          this.headers = headers
+
+          this.testAuthorization()
+          this.ready = true;
+          this.status.emit('ready', this.ready)
+          resolve(true)
+        })
+        .catch((err) => { reject(err) })
+        
+      } else {
+        // missing either token or password
+        throw new Error("You didn't provide credentials/token!")
+      }
+    })
+  }
+
   private checkStatus(res: Response, txt: string) {
     if (res.status !== 200) {
       throw new EsAPIError('Error while contacting API: ' + res.status + ' ' + res.statusText + ' Additional: ' + txt)
@@ -69,19 +78,21 @@ export class EsAPI {
   }
 
   private testAuthorization() {
-    // attempt to authenticate
-    const messageURL = 'https://student.enrichingstudents.com/v1.0/schoolmessage';
-    fetch(messageURL, {
-      headers: {
-        ESAuthToken: this.token
-      }
-    }).then((res: Response) => {
-      if (res.status !== 200) {
-        throw new EsAPIError('Error authentication with enriching students: ' + res.statusText)
-      }
-    })
+    return new Promise((resolve, reject) => {
+      // attempt to authenticate
+      const messageURL = 'https://student.enrichingstudents.com/v1.0/schoolmessage';
+      fetch(messageURL, {
+        headers: {
+          ESAuthToken: this.token
+        }
+      }).then((res: Response) => {
+        if (res.status !== 200) {
+          reject('Error authentication with enriching students: ' + res.statusText)
+        }
+      })
 
-    return true
+      resolve(true)
+    })
   }
 
   /**
@@ -89,7 +100,7 @@ export class EsAPI {
    * @returns string
    */
   public async schoolMessage(): Promise<string> {
-    if(!this.ready) throw new EsAPIError('Client not ready.');
+    if (!this.ready) throw new EsAPIError('Client not ready.');
 
     const schoolMessageURL = this.baseUrl + 'schoolmessage'
 
@@ -108,7 +119,7 @@ export class EsAPI {
    * Function that fetches a class scheduled on one day
    */
   public async viewSchedule(date: string): Promise<course> {
-    if(!this.ready) throw new EsAPIError('Client not ready.');
+    if (!this.ready) throw new EsAPIError('Client not ready.');
 
     const viewScheduleURL = this.baseUrl + 'appointment/viewschedule'
     const payload = {
@@ -127,7 +138,7 @@ export class EsAPI {
    * @returns generalInformation
    */
   public async generalInformation(): Promise<generalInformation> {
-    if(!this.ready) throw new EsAPIError('Client not ready.');
+    if (!this.ready) throw new EsAPIError('Client not ready.');
 
     const allURL = this.baseUrl + "period/all"
 
@@ -139,7 +150,7 @@ export class EsAPI {
   }
 
   public async scheduleCourse(courseId: number, date: string, comment: string): Promise<scheduledData> {
-    if(!this.ready) throw new EsAPIError('Client not ready.');
+    if (!this.ready) throw new EsAPIError('Client not ready.');
 
     const scheduleCourseUrl = this.baseUrl + "/appointment/save"
 
@@ -171,31 +182,41 @@ export class EsAPI {
    * @returns validateCredentials
    */
   private async validateCredentials(email: string, pass: string): Promise<validateCredentials> {
-    const validateUrl = 'https://app.enrichingstudents.com/LoginApi/Validate'
+    return new Promise(async (resolve, reject) => {
+      const validateUrl = 'https://app.enrichingstudents.com/LoginApi/Validate'
 
-    const payload = {
-      parameters: {
-        'EmailAddress': email,
-        'Password': pass
+      const payload = {
+        parameters: {
+          'EmailAddress': email,
+          'Password': pass
+        }
       }
-    }
+  
+      const headers = {
+        "Host": "app.enrichingstudents.com",
+        "Connection": "keep-alive",
+        "Accept": "application/json",
+        "Content-Type": "application/json;charget=UTF-8"
+      }
 
-    const headers = {
-      "Host": "app.enrichingstudents.com",
-      "Connection": "keep-alive",
-      "Accept": "application/json",
-      "Content-Type": "application/json;charget=UTF-8"
-    }
-    const res = await fetch(validateUrl, {
-      headers: headers,
-      method: 'POST',
-      body: JSON.stringify(payload)
+      const res = await fetch(validateUrl, {
+        headers: headers,
+        method: 'POST',
+        body: JSON.stringify(payload)
+      })
+
+      this.checkStatus(res, 'validateCredentials')
+
+      const json: validateCredentials = await res.json()
+
+      this.viaTokens(json.ViewModel.Token1, json.ViewModel.Token2)
+        .then((finalToken) => {
+          json.token = finalToken
+          resolve(json)
+        })
+        .catch((err) => { reject(err) })
+
     })
-    this.checkStatus(res, 'validateCredentials')
-    const json: validateCredentials = await res.json()
-    json.token = await this.viaTokens(json.ViewModel.Token1, json.ViewModel.Token2)
-      .catch((err) => { throw new EsAPIError("Invalid credentials!") })
-    return json
   }
 
   /**
@@ -235,7 +256,7 @@ export class EsAPI {
       startDate
     }
 
-    const res = await fetch(reqURL, { headers: this.headers, body: JSON.stringify(payload), method: 'POST'})
+    const res = await fetch(reqURL, { headers: this.headers, body: JSON.stringify(payload), method: 'POST' })
     this.checkStatus(res, 'forStudentScheduling')
     const json: forStudentSchedulingData = await res.json()
     return json
@@ -270,7 +291,7 @@ export class EsAPI {
       password
     }
 
-    const res = await fetch(reqURL, { headers: this.headers, body: JSON.stringify(payload), method: 'POST'})
+    const res = await fetch(reqURL, { headers: this.headers, body: JSON.stringify(payload), method: 'POST' })
     this.checkStatus(res, 'changePassword');
     return true;
   }
